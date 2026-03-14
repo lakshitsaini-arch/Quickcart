@@ -1,7 +1,12 @@
 import { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 import Header from './components/Header';
-import ProductList from './components/ProductList';
+import HomePage from './components/HomePage';
+import CategoryPage from './components/CategoryPage';
+import CartPage from './components/CartPage';
 import CartSidebar from './components/CartSidebar';
+
 import { products } from './data/products';
 import './styles/App.css';
 
@@ -12,6 +17,9 @@ function App() {
 
   // ⭐ Sidebar Open State
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // ⭐ Search State
+  const [searchTerm, setSearchTerm] = useState('');
 
   // ⭐ Add To Cart
   const addToCart = (product) => {
@@ -60,7 +68,7 @@ function App() {
     setIsCartOpen((prev) => !prev);
   };
 
-  // ⭐ Total Items (Badge Count)
+  // ⭐ Total Items Count
   const getTotalItems = () => {
     return cart.reduce(
       (total, item) => total + item.quantity,
@@ -69,32 +77,64 @@ function App() {
   };
 
   return (
-    <div className="app">
+    <BrowserRouter>
+      <div className="app">
 
-      {/* ⭐ Header */}
-      <Header
-        cartItemCount={getTotalItems()}
-        onCartClick={toggleCart}
-      />
-
-      {/* ⭐ Product Section */}
-      <main className="main-content">
-        <ProductList
-          products={products}
-          onAddToCart={addToCart}
+        <Header
+          cartItemCount={getTotalItems()}
+          onCartClick={toggleCart}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
         />
-      </main>
 
-      {/* ⭐ Cart Sidebar */}
-      <CartSidebar
-        isOpen={isCartOpen}
-        onClose={toggleCart}
-        cart={cart}
-        onUpdateQuantity={updateQuantity}
-        onRemoveItem={removeFromCart}
-      />
+        <main className="main-content">
+          <Routes>
 
-    </div>
+            <Route
+              path="/"
+              element={
+                <HomePage
+                  products={products}
+                  onAddToCart={addToCart}
+                  searchTerm={searchTerm}
+                />
+              }
+            />
+
+            <Route
+              path="/category/:category"
+              element={
+                <CategoryPage
+                  products={products}
+                  onAddToCart={addToCart}
+                />
+              }
+            />
+
+            <Route
+              path="/cart"
+              element={
+                <CartPage
+                  cart={cart}
+                  onUpdateQuantity={updateQuantity}
+                  onRemoveItem={removeFromCart}
+                />
+              }
+            />
+
+          </Routes>
+        </main>
+
+        <CartSidebar
+          isOpen={isCartOpen}
+          onClose={toggleCart}
+          cart={cart}
+          onUpdateQuantity={updateQuantity}
+          onRemoveItem={removeFromCart}
+        />
+
+      </div>
+    </BrowserRouter>
   );
 }
 
